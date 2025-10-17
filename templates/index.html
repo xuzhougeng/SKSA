@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHIL Gene Analysis</title>
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Add FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Add jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-icon {
+            font-size: 3em;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1em;
+        }
+
+        .upload-area {
+            border: 2px dashed #4a90e2;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #2980b9;
+            background: #f7f9fc;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .drag-text {
+            color: #2c3e50;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .file-types {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn i {
+            font-size: 1.2em;
+        }
+
+        .sequence-input {
+            margin-bottom: 1rem;
+        }
+
+        .sequence-input textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .sequence-input textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+
+        .sequence-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        #uploadStatus {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        .spinner {
+            margin-right: 8px;
+            color: #007bff;
+        }
+
+        .disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-chi {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result-chil {
+            background-color: #cce5ff;
+            border: 1px solid #99d6ff;
+            color: #0066cc;
+        }
+
+        .result-unknown {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-subtitle {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .position-analysis {
+            margin-top: 1.5rem;
+            text-align: left;
+            background: rgba(255,255,255,0.8);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .position-analysis h4 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .position-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+
+        .position-item.match {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .position-item.mismatch {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .position-item.unaligned {
+            background: #e2e3e5;
+            border-color: #d6d8db;
+            opacity: 0.7;
+        }
+
+        .position-number {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .amino-acid {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0.2rem 0;
+        }
+
+        .reference-aa {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .analysis-legend {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4a90e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #357abd;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        /* Language toggle styles */
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 25px;
+            padding: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .language-toggle button {
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .language-toggle button.active {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .language-toggle button:hover {
+            background: #f0f0f0;
+        }
+
+        .language-toggle button.active:hover {
+            background: #357abd;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .upload-card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .header-icon {
+                font-size: 2em;
+            }
+
+            .language-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 6px;
+            }
+
+            .language-toggle button {
+                padding: 6px 10px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Toggle -->
+    <div class="language-toggle">
+        <button id="langEn" class="active" onclick="switchLanguage('en')">EN</button>
+        <button id="langZh" onclick="switchLanguage('zh')">中文</button>
+    </div>
+
+    <div class="container">
+        <div class="upload-card">
+            <div class="card-header">
+                <i class="fas fa-dna header-icon"></i>
+                <h1 data-lang-en="CHIL Gene Analysis" data-lang-zh="CHIL 基因分析">CHIL Gene Analysis</h1>
+                <p class="subtitle" data-lang-en="Paste your protein sequence for CHI/CHIL classification" data-lang-zh="粘贴您的蛋白质序列进行 CHI/CHIL 分类">Paste your protein sequence for CHI/CHIL classification</p>
+            </div>
+
+            <form id="uploadForm">
+                <div class="sequence-input">
+                    <label for="sequenceText">
+                        <i class="fas fa-dna"></i> <span data-lang-en="Protein Sequence" data-lang-zh="蛋白质序列">Protein Sequence</span>
+                    </label>
+                    <textarea 
+                        id="sequenceText" 
+                        name="sequence" 
+                        required
+                        data-lang-en="Paste your protein sequence here (FASTA format or plain sequence)&#10;Example:&#10;>my_sequence&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV&#10;&#10;Or just the sequence without header:&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV"
+                        data-lang-zh="请在此处粘贴您的蛋白质序列（FASTA格式或纯序列）&#10;示例：&#10;>my_sequence&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV&#10;&#10;或者只输入序列而不带标题：&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV"
+                        placeholder="Paste your protein sequence here (FASTA format or plain sequence)&#10;Example:&#10;>my_sequence&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV&#10;&#10;Or just the sequence without header:&#10;MSSSNACASPSPFPAVTKLHVDSVTFVPSVKSPASSNPLFLGGAGVRGLDIQGKFV"
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-search"></i>
+                    <span data-lang-en="Analyze Sequence" data-lang-zh="分析序列">Analyze Sequence</span>
+                </button>
+                
+                <!-- Add upload status display -->
+                <div id="uploadStatus">
+                    <i class="fas fa-spinner fa-spin spinner"></i>
+                    <span class="status-text" data-lang-en="Running BLAST analysis, please wait..." data-lang-zh="正在运行BLAST分析，请稍候...">Running BLAST analysis, please wait...</span>
+                    <div class="processing-time" data-lang-en="This may take a few seconds" data-lang-zh="这可能需要几秒钟">This may take a few seconds</div>
+                </div>
+            </form>
+
+            <!-- Result section -->
+            <div id="resultSection" class="result-section">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-subtitle" id="resultSubtitle"></div>
+                
+                <!-- Position analysis -->
+                <div id="positionAnalysis" class="position-analysis" style="display: none;">
+                    <h4 data-lang-en="Key Position Analysis" data-lang-zh="关键位点分析">Key Position Analysis</h4>
+                    <div id="positionGrid" class="position-grid"></div>
+                    <div class="analysis-legend">
+                        <span style="background: #d4edda; padding: 2px 6px; border-radius: 3px; margin-right: 10px;" data-lang-en="Match" data-lang-zh="匹配">Match</span>
+                        <span style="background: #f8d7da; padding: 2px 6px; border-radius: 3px; margin-right: 10px;" data-lang-en="Mismatch" data-lang-zh="不匹配">Mismatch</span>
+                        <span style="background: #e2e3e5; padding: 2px 6px; border-radius: 3px;" data-lang-en="Unaligned" data-lang-zh="未对齐">Unaligned</span>
+                        <br><small data-lang-en="Your sequence (top) vs Reference sequence (bottom). Hover over position numbers for details." data-lang-zh="您的序列（上）与参考序列（下）。将鼠标悬停在位置号上查看详细信息。">Your sequence (top) vs Reference sequence (bottom). Hover over position numbers for details.</small>
+                    </div>
+                </div>
+                
+                <a href="#" id="downloadLink" class="btn btn-success">
+                    <i class="fas fa-download"></i>
+                    <span data-lang-en="Download Analysis Results" data-lang-zh="下载分析结果">Download Analysis Results</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to track current language
+        let currentLanguage = 'en';
+
+        // Text translations for dynamic content
+        const translations = {
+            'en': {
+                'chi_likely': 'Likely CHI Protein',
+                'chil_likely': 'Likely CHIL Protein',
+                'unknown_protein': 'Unknown Protein',
+                'chi_inference': 'Based on {similarity}% similarity, likely to be CHI protein',
+                'chil_inference': 'Based on {similarity}% similarity, likely to be CHIL protein',
+                'low_similarity': '{similarity}% similarity, sequence has low match with CHI or CHIL proteins',
+                'no_match': 'Sequence does not match CHI or CHIL proteins',
+                'sequence_required': 'Please enter a protein sequence.',
+                'analysis_failed': 'Analysis failed, please try again.'
+            },
+            'zh': {
+                'chi_likely': '可能是 CHI 蛋白',
+                'chil_likely': '可能是 CHIL 蛋白',
+                'unknown_protein': '未知蛋白',
+                'chi_inference': '根据相似度 {similarity}%，推断更可能是 CHI 蛋白',
+                'chil_inference': '根据相似度 {similarity}%，推断更可能是 CHIL 蛋白',
+                'low_similarity': '相似度 {similarity}%，序列与 CHI 或 CHIL 蛋白匹配度较低',
+                'no_match': '序列与 CHI 或 CHIL 蛋白不匹配',
+                'sequence_required': '请输入蛋白质序列。',
+                'analysis_failed': '分析失败，请重试。'
+            }
+        };
+
+        // Language switching function
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update button states
+            $('#langEn').toggleClass('active', lang === 'en');
+            $('#langZh').toggleClass('active', lang === 'zh');
+            
+            // Update all text elements
+            $('[data-lang-en][data-lang-zh]').each(function() {
+                const element = $(this);
+                const text = element.attr('data-lang-' + lang);
+                if (text) {
+                    element.text(text);
+                }
+            });
+            
+            // Update textarea placeholder
+            const textarea = $('#sequenceText');
+            const placeholder = textarea.attr('data-lang-' + lang);
+            if (placeholder) {
+                textarea.attr('placeholder', placeholder);
+            }
+        }
+
+        // Make switchLanguage globally available
+        window.switchLanguage = switchLanguage;
+
+        $(document).ready(function() {
+            // Initialize with default language
+            switchLanguage('en');
+            
+            // Form submission with result display
+            $('#uploadForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var sequence = $('#sequenceText').val().trim();
+                if (!sequence) {
+                    alert(translations[currentLanguage]['sequence_required']);
+                    return;
+                }
+                
+                var formData = new FormData();
+                formData.append('sequence', sequence);
+                
+                // Disable form elements
+                $('.submit-btn').prop('disabled', true);
+                $('.sequence-input').addClass('disabled');
+                $('#uploadStatus').show();
+                $('#resultSection').hide();
+                
+                $.ajax({
+                    url: '/chil_analyzer/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#uploadStatus').hide();
+                        $('.submit-btn').prop('disabled', false);
+                        $('.sequence-input').removeClass('disabled');
+                        
+                        if (response.download_url && response.classification) {
+                            // Display result
+                            displayResult(response.classification, response.position_analysis, response.similarity_percentage);
+                            $('#downloadLink').attr('href', response.download_url);
+                            $('#resultSection').show();
+                        }
+                    },
+                    error: function() {
+                        alert(translations[currentLanguage]['analysis_failed']);
+                        $('#uploadStatus').hide();
+                        $('.submit-btn').prop('disabled', false);
+                        $('.sequence-input').removeClass('disabled');
+                    }
+                });
+            });
+
+            function displayResult(classification, positionAnalysis, similarityPercentage) {
+                const resultSection = $('#resultSection');
+                const resultTitle = $('#resultTitle');
+                const resultSubtitle = $('#resultSubtitle');
+                
+                // Reset classes
+                resultSection.removeClass('result-chi result-chil result-unknown');
+                
+                const similarity = similarityPercentage ? similarityPercentage.toFixed(1) : '0.0';
+                const lang = currentLanguage;
+                
+                switch(classification) {
+                    case 'CHI':
+                        resultSection.addClass('result-chi');
+                        resultTitle.text(translations[lang]['chi_likely']);
+                        resultSubtitle.text(translations[lang]['chi_inference'].replace('{similarity}', similarity));
+                        break;
+                    case 'CHIL':
+                        resultSection.addClass('result-chil');
+                        resultTitle.text(translations[lang]['chil_likely']);
+                        resultSubtitle.text(translations[lang]['chil_inference'].replace('{similarity}', similarity));
+                        break;
+                    default:
+                        resultSection.addClass('result-unknown');
+                        resultTitle.text(translations[lang]['unknown_protein']);
+                        if (similarity > 0) {
+                            resultSubtitle.text(translations[lang]['low_similarity'].replace('{similarity}', similarity));
+                        } else {
+                            resultSubtitle.text(translations[lang]['no_match']);
+                        }
+                        break;
+                }
+                
+                // Display position analysis if available
+                if (positionAnalysis && positionAnalysis.comparison) {
+                    displayPositionAnalysis(positionAnalysis);
+                    $('#positionAnalysis').show();
+                } else {
+                    $('#positionAnalysis').hide();
+                }
+            }
+            
+            function displayPositionAnalysis(analysis) {
+                const grid = $('#positionGrid');
+                grid.empty();
+                
+                const positions = analysis.positions;
+                const comparison = analysis.comparison;
+                
+                positions.forEach(function(pos) {
+                    const data = comparison[pos];
+                    const isMatch = data.match;
+                    const userAA = data.user || '-';
+                    const refAA = data.reference || '-';
+                    const isAligned = data.aligned;
+                    const queryPos = data.query_pos;
+                    
+                    let positionDisplay = `Ref:${pos}`;
+                    if (isAligned && queryPos) {
+                        positionDisplay += ` (Query:${queryPos})`;
+                    }
+                    
+                    const item = $(`
+                        <div class="position-item ${isMatch ? 'match' : 'mismatch'} ${!isAligned ? 'unaligned' : ''}">
+                            <div class="position-number" title="${positionDisplay}">${pos}</div>
+                            <div class="amino-acid">${userAA}</div>
+                            <div class="reference-aa">${refAA}</div>
+                        </div>
+                    `);
+                    
+                    grid.append(item);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
